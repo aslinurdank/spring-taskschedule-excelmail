@@ -64,7 +64,7 @@ public class MailTask {
 	@Scheduled(cron = "0 0 8 * * 1-5") // Every weekday at 8:00
 	// @Scheduled(cron = "*/20 * * * * *")// Every 10 seconds
 	public void runTask() throws Exception {
-		final List<Map<String, Object>> mailList = scheduleDbService.amirleriGetir();
+		final List<Map<String, Object>> mailList = scheduleDbService.getMailEmployee();
 
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		Calendar takvim = Calendar.getInstance();
@@ -75,14 +75,14 @@ public class MailTask {
 
 				StringBuilder mesaj = new StringBuilder();
 
-				for (Map stuff : mailList) {
+				for (Map employee : mailList) {
 
-					if (stuff != null) {
+					if (employee != null) {
 						List<Map<String, Object>> getIOList = null;
-						getIOList = scheduleDbService.getIO(stuff.get("USERID"));
+						getIOList = scheduleDbService.getIO(Long.valueOf(employee.get("USERID").toString()));
 						if (getIOList != null) {
 							InputStream in = print(mailList);
-							mailSender.sendMail(stuff.get("E_MAIL").toString(),"", in,
+							mailSender.sendMail(employee.get("E_MAIL").toString(),"", in,
 									"Mail List");
 						}
 					}
@@ -117,7 +117,8 @@ public class MailTask {
 		drb.setTitleStyle(titleDetail);
 
 		drb.setTitle("Mail Report");
-		drb.addColumn("Full Name", "FullName", String.class.getName(), 50, true);
+		drb.addColumn("Full Name", "FULL_NAME", String.class.getName(), 50, true);
+		drb.addColumn("Average Working Time", "AVERAGE_WRKTIME", String.class.getName(), 150, true);
 
 		Page pg = new Page(4000, 3500, false);
 		drb.setPageSizeAndOrientation(pg);
